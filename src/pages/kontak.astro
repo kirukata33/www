@@ -1,0 +1,185 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site } from '../data/site';
+
+const subject = encodeURIComponent('Halo, saya ingin berdiskusi tentang proyek');
+---
+
+<Layout title="Kontak" description="Hubungi Ahmad Revalvala untuk proyek atau kolaborasi.">
+  <section class="contact-page wrap pt-14 pb-16 md:pt-20 md:pb-24">
+    <div class="contact-intro">
+      <p class="section-kicker">Pintu selalu terbuka</p>
+      <h1 class="contact-title font-extrabold">Ada ide?<br /><span>Mari ngobrol.</span></h1>
+      <p class="mt-5 max-w-[56ch] text-lg text-muted">
+      Kirim email dengan gambaran singkat proyekmu: tujuan, tenggat, dan contoh yang kamu suka.
+      </p>
+    </div>
+
+    <div class="contact-card mt-10 p-6 md:p-10">
+      <div class="contact-card-heading">
+        <h2 class="text-xl font-extrabold">MULAI DARI EMAIL</h2>
+        <span aria-hidden="true">01 / 02</span>
+      </div>
+      <p class="contact-email mt-8 break-all font-display font-extrabold" id="email-teks">
+        {site.email}
+      </p>
+      <div class="mt-6 flex flex-wrap gap-3">
+        <a href={`mailto:${site.email}?subject=${subject}`} class="btn btn-primary">Tulis email</a>
+        <button type="button" id="salin" class="btn btn-ghost" data-email={site.email}>
+          Salin alamat
+        </button>
+        <span id="salin-status" class="self-center text-sm text-muted" role="status"></span>
+      </div>
+    </div>
+
+    <div class="social-block mt-12">
+      <div class="social-heading"><p class="section-kicker">Temukan saya</p><h2 class="text-2xl font-extrabold">Tautan lain</h2></div>
+      <ul class="social-links mt-5 flex flex-wrap gap-3">
+        {
+          site.socials.map((s) => (
+            <li>
+              <a href={s.href} rel="noopener" class="social-link">
+                {s.label}<span aria-hidden="true">↗</span>
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .contact-title {
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    letter-spacing: -0.08em;
+    line-height: 0.9;
+  }
+
+  .contact-title span {
+    color: var(--violet);
+  }
+
+  .contact-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--fg);
+    background: var(--amber);
+    color: #fffaf1;
+    box-shadow: 8px 8px 0 var(--fg);
+  }
+
+  .contact-card::after {
+    content: '@';
+    position: absolute;
+    right: -0.02em;
+    bottom: -0.38em;
+    color: rgb(255 255 255 / 14%);
+    font-family: var(--font-display);
+    font-size: clamp(12rem, 32vw, 28rem);
+    font-weight: 800;
+    letter-spacing: -0.1em;
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .contact-card-heading {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .contact-card-heading h2,
+  .contact-card-heading span {
+    margin: 0;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .contact-card-heading span {
+    opacity: 0.75;
+  }
+
+  .contact-email {
+    position: relative;
+    z-index: 1;
+    max-width: max-content;
+    font-size: clamp(1.7rem, 6vw, 4rem);
+    letter-spacing: -0.06em;
+    line-height: 1.08;
+  }
+
+  .contact-card .btn-primary {
+    border-color: var(--fg);
+    background: var(--fg);
+    box-shadow: 4px 4px 0 color-mix(in srgb, white 45%, transparent);
+  }
+
+  .contact-card .btn-ghost {
+    border-color: rgb(255 255 255 / 70%);
+    color: white;
+  }
+
+  .contact-card .btn-ghost:hover {
+    background: rgb(255 255 255 / 12%);
+  }
+
+  .contact-card #salin-status {
+    color: white;
+  }
+
+  .social-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+
+  .social-heading .section-kicker,
+  .social-heading h2 {
+    margin-bottom: 0;
+  }
+
+  .social-link {
+    display: inline-flex;
+    min-width: 9rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--fg);
+    color: var(--fg);
+    font-weight: 700;
+    text-decoration: none;
+    transition: color 0.15s, background-color 0.15s, transform 0.15s;
+  }
+
+  .social-link:hover {
+    transform: translateY(-2px);
+    background: var(--teal);
+    color: white;
+  }
+</style>
+
+<script>
+  const btn = document.getElementById('salin') as HTMLButtonElement | null;
+  const status = document.getElementById('salin-status');
+
+  btn?.addEventListener('click', async () => {
+    const email = btn.dataset.email ?? '';
+    try {
+      await navigator.clipboard.writeText(email);
+      if (status) status.textContent = 'Alamat email tersalin.';
+    } catch {
+      if (status) status.textContent = 'Gagal menyalin. Salin langsung dari teks di atas.';
+    }
+    setTimeout(() => {
+      if (status) status.textContent = '';
+    }, 2500);
+  });
+</script>

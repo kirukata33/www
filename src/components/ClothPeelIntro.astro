@@ -1,0 +1,536 @@
+<div class="cloth-intro" data-cloth-intro hidden>
+  <canvas class="cloth-canvas" data-cloth-canvas aria-hidden="true"></canvas>
+  <div class="intro-copy" data-intro-copy>
+    <p class="intro-kicker">AHMAD REVALVALA <span>—</span> CREATIVE PORTFOLIO</p>
+    <h1>MY PORTFOLIO</h1>
+    <p class="intro-subtitle">DESIGN. DEVELOP. CREATE.</p>
+  </div>
+  <button class="intro-skip" data-intro-skip type="button">
+    Lewati intro <span aria-hidden="true">↗</span>
+  </button>
+  <span class="intro-counter" data-intro-counter aria-hidden="true">00 — 01</span>
+</div>
+
+<style>
+  .cloth-intro {
+    position: fixed;
+    z-index: 200;
+    inset: 0;
+    display: grid;
+    overflow: hidden;
+    place-items: center;
+    background: #211921;
+    color: #fff8ed;
+    isolation: isolate;
+  }
+
+  .cloth-intro[hidden] {
+    display: none;
+  }
+
+  .cloth-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .intro-copy {
+    position: relative;
+    z-index: 1;
+    width: min(90vw, 70rem);
+    padding: 2rem;
+    pointer-events: none;
+    text-align: center;
+    text-shadow: 0 3px 25px rgb(0 0 0 / 20%);
+  }
+
+  .intro-kicker,
+  .intro-subtitle {
+    margin: 0;
+    font-size: clamp(0.58rem, 1.2vw, 0.75rem);
+    font-weight: 800;
+    letter-spacing: 0.22em;
+  }
+
+  .intro-kicker {
+    color: rgb(255 248 237 / 72%);
+  }
+
+  .intro-kicker span {
+    padding-inline: 0.35rem;
+    color: #ef8557;
+  }
+
+  .intro-copy h1 {
+    margin: 1.1rem 0 0.8rem;
+    font-size: clamp(3rem, 10.5vw, 9rem);
+    font-weight: 800;
+    letter-spacing: -0.075em;
+    line-height: 0.9;
+    white-space: nowrap;
+  }
+
+  .intro-subtitle {
+    color: #efc38c;
+    letter-spacing: 0.32em;
+  }
+
+  .intro-skip {
+    position: absolute;
+    z-index: 3;
+    top: max(1.25rem, env(safe-area-inset-top));
+    right: max(1.25rem, env(safe-area-inset-right));
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.9rem;
+    border: 1px solid rgb(255 248 237 / 38%);
+    background: rgb(28 22 29 / 40%);
+    color: #fff8ed;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-size: 0.75rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+    transition: background-color 0.2s, border-color 0.2s;
+  }
+
+  .intro-skip:hover {
+    border-color: #efc38c;
+    background: rgb(28 22 29 / 76%);
+  }
+
+  .intro-skip:focus-visible {
+    outline: 2px solid #efc38c;
+    outline-offset: 4px;
+  }
+
+  .intro-skip span {
+    color: #efc38c;
+    font-size: 1rem;
+  }
+
+  .intro-counter {
+    position: absolute;
+    z-index: 2;
+    right: max(1.5rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    color: rgb(255 248 237 / 72%);
+    font-family: var(--font-display);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  @media (max-width: 36rem) {
+    .intro-copy {
+      padding-inline: 0.7rem;
+    }
+
+    .intro-copy h1 {
+      font-size: clamp(2.4rem, 11.5vw, 4.1rem);
+      letter-spacing: -0.08em;
+    }
+
+    .intro-subtitle {
+      letter-spacing: 0.2em;
+    }
+
+    .intro-skip {
+      top: max(0.8rem, env(safe-area-inset-top));
+      right: max(0.8rem, env(safe-area-inset-right));
+    }
+  }
+</style>
+
+<script>
+  const INTRO_STORAGE_KEY = 'portfolio-cloth-intro-seen';
+
+  document.querySelectorAll<HTMLElement>('[data-cloth-intro]').forEach((intro) => {
+    const canvas = intro.querySelector<HTMLCanvasElement>('[data-cloth-canvas]');
+    const title = intro.querySelector<HTMLElement>('[data-intro-copy]');
+    const skip = intro.querySelector<HTMLButtonElement>('[data-intro-skip]');
+    const counter = intro.querySelector<HTMLElement>('[data-intro-counter]');
+    const context = canvas?.getContext('2d', { alpha: false });
+    const root = document.documentElement;
+
+    if (
+      !canvas ||
+      !title ||
+      !skip ||
+      !context ||
+      root.dataset.clothIntro !== 'enabled' ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      root.removeAttribute('data-cloth-intro');
+      intro.remove();
+      return;
+    }
+
+    type Point = {
+      x: number;
+      y: number;
+      oldX: number;
+      oldY: number;
+      u: number;
+      v: number;
+    };
+    type Link = { a: number; b: number; rest: number };
+
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let cols = 0;
+    let rows = 0;
+    let texture: HTMLCanvasElement;
+    let textureContext: CanvasRenderingContext2D;
+    let points: Point[] = [];
+    let links: Link[] = [];
+    let raf = 0;
+    let startTime = 0;
+    let lastFrame = 0;
+    let ended = false;
+    let inertElements: { element: HTMLElement; wasInert: boolean }[] = [];
+
+    const INTRO_MS = 4300;
+    const TITLE_HOLD_MS = 1450;
+    const PEEL_MS = 2450;
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, value));
+    const easeInOut = (value: number) => {
+      const t = clamp(value, 0, 1);
+      return t * t * (3 - 2 * t);
+    };
+
+    function makeTexture() {
+      texture = document.createElement('canvas');
+      texture.width = Math.max(1, Math.ceil(width));
+      texture.height = Math.max(1, Math.ceil(height));
+      textureContext = texture.getContext('2d', { alpha: false })!;
+      const gradient = textureContext.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, '#382c35');
+      gradient.addColorStop(0.48, '#2b222d');
+      gradient.addColorStop(1, '#17151c');
+      textureContext.fillStyle = gradient;
+      textureContext.fillRect(0, 0, width, height);
+
+      for (let x = 0; x < width; x += Math.max(3, width * 0.006)) {
+        const variation = Math.sin(x * 0.045) * 0.5 + 0.5;
+        textureContext.fillStyle = `rgba(239, 195, 140, ${0.012 + variation * 0.024})`;
+        textureContext.fillRect(x, 0, Math.max(1, width * 0.0018), height);
+      }
+
+      const glow = textureContext.createRadialGradient(
+        width * 0.47,
+        height * 0.37,
+        0,
+        width * 0.47,
+        height * 0.37,
+        Math.max(width, height) * 0.8,
+      );
+      glow.addColorStop(0, 'rgba(237, 174, 118, 0.08)');
+      glow.addColorStop(1, 'rgba(0, 0, 0, 0.2)');
+      textureContext.fillStyle = glow;
+      textureContext.fillRect(0, 0, width, height);
+
+      const noise = textureContext.createImageData(180, 180);
+      let seed = 918273;
+      for (let index = 0; index < noise.data.length; index += 4) {
+        seed = (seed * 1664525 + 1013904223) >>> 0;
+        const value = (seed >>> 24) > 128 ? 255 : 0;
+        noise.data[index] = value;
+        noise.data[index + 1] = value;
+        noise.data[index + 2] = value;
+        noise.data[index + 3] = 14;
+      }
+      const noiseCanvas = document.createElement('canvas');
+      noiseCanvas.width = 180;
+      noiseCanvas.height = 180;
+      noiseCanvas.getContext('2d')!.putImageData(noise, 0, 0);
+      textureContext.fillStyle = textureContext.createPattern(noiseCanvas, 'repeat')!;
+      textureContext.fillRect(0, 0, width, height);
+    }
+
+    function makeMesh() {
+      cols = clamp(Math.ceil(width / 80), 10, 20);
+      rows = clamp(Math.ceil(height / 72), 10, 18);
+      points = [];
+      links = [];
+
+      for (let row = 0; row <= rows; row++) {
+        for (let col = 0; col <= cols; col++) {
+          const u = col / cols;
+          const v = row / rows;
+          points.push({ x: u * width, y: v * height, oldX: u * width, oldY: v * height, u, v });
+        }
+      }
+
+      const indexAt = (row: number, col: number) => row * (cols + 1) + col;
+      const link = (aRow: number, aCol: number, bRow: number, bCol: number) => {
+        const a = indexAt(aRow, aCol);
+        const b = indexAt(bRow, bCol);
+        links.push({
+          a,
+          b,
+          rest: Math.hypot(points[b].x - points[a].x, points[b].y - points[a].y),
+        });
+      };
+
+      for (let row = 0; row <= rows; row++) {
+        for (let col = 0; col <= cols; col++) {
+          if (col < cols) link(row, col, row, col + 1);
+          if (row < rows) link(row, col, row + 1, col);
+          if (col < cols && row < rows) {
+            link(row, col, row + 1, col + 1);
+            link(row, col + 1, row + 1, col);
+          }
+        }
+      }
+    }
+
+    function resize() {
+      const nextWidth = window.innerWidth;
+      const nextHeight = window.innerHeight;
+      if (width && height) {
+        const sx = nextWidth / width;
+        const sy = nextHeight / height;
+        points.forEach((point) => {
+          point.x *= sx;
+          point.oldX *= sx;
+          point.y *= sy;
+          point.oldY *= sy;
+        });
+      }
+      width = nextWidth;
+      height = nextHeight;
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      canvas!.width = Math.round(width * dpr);
+      canvas!.height = Math.round(height * dpr);
+      makeTexture();
+      makeMesh();
+    }
+
+    function drawTriangle(
+      source: [number, number, number, number, number, number],
+      target: [number, number, number, number, number, number],
+    ) {
+      const [sx1, sy1, sx2, sy2, sx3, sy3] = source;
+      const [x1, y1, x2, y2, x3, y3] = target;
+      const denominator =
+        sx1 * (sy2 - sy3) + sx2 * (sy3 - sy1) + sx3 * (sy1 - sy2);
+      if (Math.abs(denominator) < 0.0001) return;
+
+      const a = (x1 * (sy2 - sy3) + x2 * (sy3 - sy1) + x3 * (sy1 - sy2)) / denominator;
+      const c = (x1 * (sx3 - sx2) + x2 * (sx1 - sx3) + x3 * (sx2 - sx1)) / denominator;
+      const e =
+        (x1 * (sx2 * sy3 - sx3 * sy2) +
+          x2 * (sx3 * sy1 - sx1 * sy3) +
+          x3 * (sx1 * sy2 - sx2 * sy1)) /
+        denominator;
+      const b = (y1 * (sy2 - sy3) + y2 * (sy3 - sy1) + y3 * (sy1 - sy2)) / denominator;
+      const d = (y1 * (sx3 - sx2) + y2 * (sx1 - sx3) + y3 * (sx2 - sx1)) / denominator;
+      const f =
+        (y1 * (sx2 * sy3 - sx3 * sy2) +
+          y2 * (sx3 * sy1 - sx1 * sy3) +
+          y3 * (sx1 * sy2 - sx2 * sy1)) /
+        denominator;
+
+      context!.save();
+      context!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context!.beginPath();
+      context!.moveTo(x1, y1);
+      context!.lineTo(x2, y2);
+      context!.lineTo(x3, y3);
+      context!.closePath();
+      context!.clip();
+      context!.transform(a, b, c, d, e, f);
+      context!.drawImage(
+        texture,
+        sx1,
+        sy1,
+        Math.max(1, Math.abs(sx2 - sx1)),
+        Math.max(1, Math.abs(sy3 - sy1)),
+        sx1,
+        sy1,
+        Math.max(1, Math.abs(sx2 - sx1)),
+        Math.max(1, Math.abs(sy3 - sy1)),
+      );
+      context!.restore();
+    }
+
+    function paintCloth() {
+      context!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      context!.clearRect(0, 0, width, height);
+
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const p00 = points[row * (cols + 1) + col];
+          const p10 = points[row * (cols + 1) + col + 1];
+          const p01 = points[(row + 1) * (cols + 1) + col];
+          const p11 = points[(row + 1) * (cols + 1) + col + 1];
+          const sx1 = p00.u * width;
+          const sy1 = p00.v * height;
+          const sx2 = p10.u * width;
+          const sy2 = p01.v * height;
+
+          drawTriangle(
+            [sx1, sy1, sx2, sy1, sx2, sy2],
+            [p00.x, p00.y, p10.x, p10.y, p11.x, p11.y],
+          );
+          drawTriangle(
+            [sx1, sy1, sx2, sy2, sx1, sy2],
+            [p00.x, p00.y, p11.x, p11.y, p01.x, p01.y],
+          );
+
+          const horizontalStretch = Math.abs((p10.x - p00.x) / Math.max(1, width / cols));
+          const verticalStretch = Math.abs((p01.y - p00.y) / Math.max(1, height / rows));
+          const foldShade = clamp((1 - Math.min(horizontalStretch, verticalStretch)) * 0.5, 0, 0.32);
+          if (foldShade > 0.015) {
+            context!.setTransform(dpr, 0, 0, dpr, 0, 0);
+            context!.beginPath();
+            context!.moveTo(p00.x, p00.y);
+            context!.lineTo(p10.x, p10.y);
+            context!.lineTo(p11.x, p11.y);
+            context!.lineTo(p01.x, p01.y);
+            context!.closePath();
+            context!.fillStyle = `rgba(12, 9, 14, ${foldShade})`;
+            context!.fill();
+          }
+        }
+      }
+
+      const edge = points
+        .filter((point) => point.u > 0.92)
+        .sort((a, b) => a.v - b.v);
+      if (edge.length > 1) {
+        const shadow = context!.createLinearGradient(edge[0].x, 0, edge[0].x - width * 0.16, 0);
+        shadow.addColorStop(0, 'rgba(7, 5, 9, .62)');
+        shadow.addColorStop(1, 'rgba(7, 5, 9, 0)');
+        context!.setTransform(dpr, 0, 0, dpr, 0, 0);
+        context!.beginPath();
+        context!.moveTo(edge[0].x, edge[0].y);
+        edge.slice(1).forEach((point) => context!.lineTo(point.x, point.y));
+        context!.lineTo(width, height);
+        context!.lineTo(width, 0);
+        context!.closePath();
+        context!.fillStyle = shadow;
+        context!.fill();
+      }
+    }
+
+    function releaseAmount(progress: number, point: Point) {
+      const diagonalDelay = (1 - point.u) * 0.62 + point.v * 0.38;
+      return easeInOut((progress - diagonalDelay * 0.22) / 0.78);
+    }
+
+    function simulate(dt: number, progress: number, elapsed: number) {
+      const safeDt = Math.min(dt, 1 / 30);
+      for (const point of points) {
+        const release = releaseAmount(progress, point);
+        const vx = (point.x - point.oldX) * 0.986;
+        const vy = (point.y - point.oldY) * 0.986;
+        point.oldX = point.x;
+        point.oldY = point.y;
+
+        const curl = Math.sin(point.v * 15 + elapsed * 4.4 + point.u * 3) * release;
+        point.x += vx + (1550 * release + curl * 240) * safeDt * safeDt;
+        point.y += vy + (240 + curl * 180 - 420 * release) * safeDt * safeDt;
+      }
+
+      for (let iteration = 0; iteration < 5; iteration++) {
+        for (const link of links) {
+          const a = points[link.a];
+          const b = points[link.b];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const distance = Math.hypot(dx, dy) || 0.0001;
+          const correction = ((distance - link.rest) / distance) * 0.5;
+          const offsetX = dx * correction;
+          const offsetY = dy * correction;
+          a.x += offsetX;
+          a.y += offsetY;
+          b.x -= offsetX;
+          b.y -= offsetY;
+        }
+      }
+    }
+
+    function finish() {
+      if (ended) return;
+      ended = true;
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', resize);
+      skip!.removeEventListener('click', onSkip);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      inertElements.forEach(({ element, wasInert }) => {
+        element.inert = wasInert;
+      });
+      root.classList.remove('cloth-intro-playing');
+      intro.remove();
+    }
+
+    function onSkip() {
+      finish();
+    }
+
+    function animate(now: number) {
+      if (!startTime) startTime = now;
+      if (lastFrame && now - lastFrame < 1000 / 30) {
+        raf = requestAnimationFrame(animate);
+        return;
+      }
+      const elapsed = now - startTime;
+      const progress = easeInOut((elapsed - TITLE_HOLD_MS) / PEEL_MS);
+      const dt = lastFrame ? Math.min((now - lastFrame) / 1000, 1 / 30) : 1 / 60;
+      lastFrame = now;
+
+      simulate(dt, progress, elapsed / 1000);
+      paintCloth();
+
+      const titleIn = easeInOut(elapsed / 520);
+      const titleOut = 1 - easeInOut((elapsed - TITLE_HOLD_MS - 250) / 640);
+      title!.style.opacity = String(titleIn * Math.max(0, titleOut));
+      title!.style.transform = `translateY(${(1 - titleIn) * 18}px) scale(${0.97 + titleIn * 0.03})`;
+      if (counter) {
+        const seconds = Math.min(1, Math.floor((elapsed / INTRO_MS) * 100));
+        counter.textContent = `00 — ${String(seconds).padStart(2, '0')}`;
+      }
+
+      if (elapsed >= INTRO_MS) finish();
+      else raf = requestAnimationFrame(animate);
+    }
+
+    function onVisibilityChange() {
+      if (document.hidden && !ended) {
+        startTime = performance.now() - INTRO_MS;
+        finish();
+      }
+    }
+
+    try {
+      window.sessionStorage.setItem(INTRO_STORAGE_KEY, '1');
+    } catch {
+      // The intro still works if storage is unavailable; only replay prevention is lost.
+    }
+
+    resize();
+    inertElements = Array.from(document.body.children)
+      .filter((element): element is HTMLElement => element instanceof HTMLElement && element !== intro)
+      .map((element) => {
+        const wasInert = element.inert;
+        element.inert = true;
+        return { element, wasInert };
+      });
+    skip.addEventListener('click', onSkip);
+    window.addEventListener('resize', resize);
+    document.addEventListener('visibilitychange', onVisibilityChange, { once: true });
+    intro.hidden = false;
+    root.classList.add('cloth-intro-playing');
+    skip.focus({ preventScroll: true });
+    raf = requestAnimationFrame(animate);
+  });
+</script>

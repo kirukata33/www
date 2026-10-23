@@ -1,0 +1,475 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { site, skills } from '../data/site';
+
+const initials = site.name
+  .split(' ')
+  .map((w) => w[0])
+  .join('')
+  .slice(0, 2);
+---
+
+<Layout
+  title="Tentang saya"
+  description="Kenali Ahmad Revalvala: programmer, editor, dan game developer."
+>
+  <section class="about-hero wrap grid gap-10 pt-14 pb-14 md:grid-cols-[1.15fr_0.85fr] md:gap-16 md:pt-20 md:pb-20">
+    <div class="about-copy">
+      <div class="about-overline">
+        <p class="section-kicker">Tentang saya</p>
+        <span>01 — PROFIL</span>
+      </div>
+      <h1 class="about-title font-extrabold">Halo,<br />saya <span>Ahmad.</span></h1>
+      <p class="about-role">PROGRAMMER <i>✳</i> EDITOR <i>✳</i> GAME DEVELOPER</p>
+      <div class="prose-id about-prose mt-7 space-y-4 text-lg">
+        <p>
+          Saya {site.name}. Saya suka mengubah ide menjadi sesuatu yang bisa digunakan, ditonton,
+          atau dimainkan.
+        </p>
+        <p>
+          Di sisi pemrograman, saya membangun aplikasi web dengan Laravel. Di sisi video, saya
+          menjadi clipper: memilih momen terbaik dari video panjang dan mengeditnya menjadi klip
+          pendek. Di sisi game, saya membuat game 2D dan 3D.
+        </p>
+        <p>
+          Ketiganya punya dasar yang sama: struktur yang rapi, ritme yang terjaga, dan perhatian
+          pada orang yang memakai hasilnya.
+        </p>
+      </div>
+      <a href="/portofolio" class="about-work-link">
+        Lihat yang pernah saya buat <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <aside class="portrait-wrap" aria-label={`Monogram ${site.name}`}>
+      <div class="portrait-topline"><span>CREATIVE GENERALIST</span><span>AR / 01</span></div>
+      <div class="monogram" aria-hidden="true">
+        <span class="monogram-label">IDEAS INTO<br />DIGITAL WORLDS</span>
+        <span class="letters">{initials}<i>.</i></span>
+        <span class="monogram-stamp">DESIGN<br />&amp; BUILD</span>
+        <span class="bars">
+          <i style="--c: var(--teal); width: 70%"></i>
+          <i style="--c: var(--amber); width: 45%; margin-left: 18%"></i>
+          <i style="--c: var(--rose); width: 60%; margin-left: 8%"></i>
+          <i style="--c: var(--fg); width: 38%; margin-left: 40%"></i>
+        </span>
+        <span class="monogram-side-note">WEB / VIDEO / GAME</span>
+      </div>
+      <span class="portrait-caption">SENANG BERTEMU DENGANMU — 2026</span>
+      <div class="portrait-index"><span>BASED IN</span><strong>INDONESIA</strong></div>
+    </aside>
+  </section>
+
+  <section class="approach-section">
+    <div class="wrap approach-grid">
+      <div class="approach-heading">
+        <p class="section-kicker">Cara saya bekerja</p>
+        <h2>Rapi dalam proses.<br /><span>Serius pada detail.</span></h2>
+      </div>
+      <div class="approach-list">
+        <p><span>01</span><strong>Struktur yang jelas</strong><small>Supaya ide mudah dikembangkan dan dirawat.</small></p>
+        <p><span>02</span><strong>Ritme yang terasa</strong><small>Dari alur aplikasi sampai potongan video.</small></p>
+        <p><span>03</span><strong>Fokus pada pengguna</strong><small>Hasil akhirnya harus terasa berguna dan menyenangkan.</small></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="skills-section">
+    <div class="wrap py-12 md:py-16">
+      <div class="skills-heading">
+        <div><p class="section-kicker">Toolkit</p><h2 class="text-3xl font-extrabold">Keahlian</h2></div>
+        <span>YANG SAYA BAWA KE MEJA KERJA</span>
+      </div>
+      <div class="mt-8 grid gap-5 md:grid-cols-3">
+        {
+          skills.map((s, index) => (
+            <section class="skill-card" style={`--c: var(--${s.color})`}>
+              <p class="skill-number">0{index + 1} / 03</p>
+              <h3 class="font-display text-xl font-extrabold">{s.group}</h3>
+              <ul class="mt-4 flex flex-wrap gap-2">
+                {s.items.map((item) => (
+                  <li class="tag">{item}</li>
+                ))}
+              </ul>
+            </section>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap about-cta pb-16 md:pb-24">
+    <div
+      class="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-line bg-surface p-8 md:p-10"
+    >
+      <div>
+        <h2 class="text-3xl font-extrabold">Ingin bekerja sama?</h2>
+        <p class="mt-2 max-w-[48ch] text-muted">Lihat hasil kerja saya atau langsung kirim pesan.</p>
+      </div>
+      <div class="flex flex-wrap gap-3">
+        <a href="/portofolio" class="btn btn-primary">Lihat portofolio</a>
+        <a href="/kontak" class="btn btn-ghost">Hubungi saya</a>
+      </div>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .monogram {
+    position: relative;
+    aspect-ratio: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.5rem;
+    overflow: hidden;
+    background: var(--violet);
+    color: #fffaf1;
+    box-shadow: 9px 9px 0 var(--fg);
+    transform: rotate(2deg);
+  }
+
+  .monogram::before {
+    content: '';
+    position: absolute;
+    width: 12rem;
+    height: 12rem;
+    top: -3rem;
+    right: -2rem;
+    border: 1px solid rgb(255 255 255 / 35%);
+    border-radius: 50%;
+    box-shadow: 0 0 0 1.2rem rgb(255 255 255 / 10%), 0 0 0 2.4rem rgb(255 255 255 / 8%);
+  }
+
+  .monogram-label,
+  .monogram-stamp {
+    position: relative;
+    z-index: 1;
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1.4;
+  }
+
+  .monogram-stamp {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.45rem;
+    border: 1px solid rgb(255 255 255 / 65%);
+    border-radius: 50%;
+    text-align: center;
+    transform: rotate(10deg);
+  }
+
+  .letters {
+    position: relative;
+    z-index: 1;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(5.5rem, 12vw, 8.25rem);
+    line-height: 0.9;
+    letter-spacing: -0.08em;
+  }
+
+  .letters i {
+    color: var(--amber);
+    font-style: normal;
+  }
+
+  .bars {
+    display: grid;
+    gap: 0.35rem;
+    transform: rotate(-8deg);
+  }
+
+  .bars i {
+    display: block;
+    height: 0.35rem;
+    border-radius: 0;
+    background: var(--c);
+  }
+
+  .portrait-wrap {
+    width: min(100%, 23rem);
+    margin-inline: auto;
+  }
+
+  .about-overline,
+  .portrait-topline,
+  .portrait-index {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .about-overline {
+    max-width: 34rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .about-overline .section-kicker {
+    margin: 0;
+  }
+
+  .about-overline > span,
+  .portrait-topline,
+  .portrait-index {
+    color: var(--muted);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+  }
+
+  .portrait-topline {
+    margin-bottom: 0.85rem;
+  }
+
+  .portrait-topline span:last-child {
+    color: var(--violet);
+  }
+
+  .portrait-index {
+    margin-top: 1rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .portrait-index strong {
+    color: var(--fg);
+  }
+
+  .monogram-side-note {
+    position: absolute;
+    z-index: 1;
+    right: 1.5rem;
+    bottom: 1.55rem;
+    color: rgb(255 250 241 / 78%);
+    font-size: 0.55rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    writing-mode: vertical-rl;
+  }
+
+  .portrait-caption {
+    display: block;
+    margin-top: 1rem;
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    text-align: left;
+  }
+
+  .about-title {
+    max-width: 9ch;
+    font-size: clamp(3.6rem, 8vw, 6.6rem);
+    letter-spacing: -0.075em;
+    line-height: 0.96;
+  }
+
+  .about-title span {
+    color: var(--violet);
+  }
+
+  .about-role {
+    margin-top: 1.3rem;
+    color: var(--muted);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+  }
+
+  .about-role i {
+    margin-inline: 0.35rem;
+    color: var(--amber);
+    font-style: normal;
+  }
+
+  .about-prose {
+    color: var(--muted);
+    font-size: 1.05rem;
+  }
+
+  .about-prose p:first-child {
+    color: var(--fg);
+    font-size: 1.2rem;
+    font-weight: 600;
+  }
+
+  .about-work-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 1.6rem;
+    padding-bottom: 0.3rem;
+    border-bottom: 1px solid var(--violet);
+    color: var(--fg);
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+  }
+
+  .about-work-link span {
+    color: var(--violet);
+    transition: transform 0.15s ease;
+  }
+
+  .about-work-link:hover span {
+    transform: translate(3px, -3px);
+  }
+
+  .approach-section {
+    padding-block: 3.5rem;
+    border-block: 1px solid var(--line);
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  .approach-grid {
+    display: grid;
+    grid-template-columns: 0.9fr 1.1fr;
+    align-items: start;
+    gap: clamp(2rem, 7vw, 6rem);
+  }
+
+  .approach-heading .section-kicker {
+    color: var(--amber);
+  }
+
+  .approach-heading h2 {
+    font-size: clamp(2.25rem, 5vw, 4rem);
+    letter-spacing: -0.06em;
+    line-height: 1;
+  }
+
+  .approach-heading h2 span {
+    color: color-mix(in srgb, var(--bg) 65%, var(--fg));
+  }
+
+  .approach-list p {
+    display: grid;
+    grid-template-columns: 2.5rem 1fr;
+    gap: 0.2rem 0.85rem;
+    margin: 0;
+    padding-block: 1rem;
+    border-bottom: 1px solid color-mix(in srgb, var(--bg) 24%, transparent);
+  }
+
+  .approach-list p:first-child {
+    padding-top: 0;
+  }
+
+  .approach-list p > span {
+    grid-row: span 2;
+    color: var(--amber);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+  }
+
+  .approach-list strong {
+    font-family: var(--font-display);
+    font-size: 1.05rem;
+  }
+
+  .approach-list small {
+    color: color-mix(in srgb, var(--bg) 70%, var(--fg));
+    font-size: 0.85rem;
+  }
+
+  .skills-section {
+    border-block: 1px solid var(--line);
+    background: color-mix(in srgb, var(--amber) 8%, var(--surface));
+  }
+
+  .skills-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .skills-heading > span {
+    color: var(--muted);
+    font-size: 0.65rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .skill-card {
+    min-height: 12rem;
+    padding: 1.4rem;
+    border: 1px solid var(--fg);
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--c);
+  }
+
+  .skill-number {
+    margin-bottom: 1.6rem;
+    color: var(--c);
+    font-size: 0.67rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+  }
+
+  .skill-card .tag {
+    border-color: color-mix(in srgb, var(--c) 40%, var(--line));
+    background: color-mix(in srgb, var(--c) 9%, var(--surface));
+  }
+
+  .about-cta > div {
+    border-radius: 0;
+    border-color: var(--fg);
+    background: var(--teal);
+    color: #fffaf1;
+    box-shadow: 8px 8px 0 var(--fg);
+  }
+
+  .about-cta .text-muted {
+    color: rgb(255 250 241 / 82%);
+  }
+
+  .about-cta .btn-primary {
+    border-color: var(--fg);
+    background: var(--fg);
+    box-shadow: 4px 4px 0 var(--amber);
+  }
+
+  .about-cta .btn-ghost {
+    border-color: rgb(255 255 255 / 55%);
+  }
+
+  @media (max-width: 48rem) {
+    .about-hero {
+      gap: 2.5rem;
+    }
+
+    .portrait-wrap {
+      width: min(78%, 21rem);
+    }
+
+    .approach-grid {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+
+  @media (max-width: 30rem) {
+    .portrait-wrap {
+      width: min(88%, 19rem);
+    }
+
+    .approach-section {
+      padding-block: 2.5rem;
+    }
+
+    .about-role {
+      max-width: 29ch;
+      line-height: 1.8;
+    }
+  }
+</style>

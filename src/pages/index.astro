@@ -1,0 +1,331 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Timeline from '../components/Timeline.astro';
+import Glyph from '../components/Glyph.astro';
+import IDCardLanyard from '../components/IDCardLanyard.astro';
+import { site, categories } from '../data/site';
+---
+
+<Layout>
+  <section class="hero">
+    <div class="wrap hero-layout relative pt-14 pb-8 md:pt-24 md:pb-10">
+      <div class="hero-copy">
+        <p class="eyebrow"><span></span> Portofolio kreatif & teknologi</p>
+        <h1 class="name">{site.name}<span class="name-period">.</span></h1>
+        <p class="mt-4 font-display text-xl font-semibold text-muted md:text-2xl">
+          {site.role}
+        </p>
+        <p class="hero-description mt-6 max-w-[56ch] text-lg">
+          Saya membangun aplikasi web, merangkai momen terbaik menjadi video pendek, dan menciptakan
+          pengalaman bermain dalam game 2D maupun 3D.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/portofolio" class="btn btn-primary">Jelajahi karya <span aria-hidden="true">↗</span></a>
+          <a href="/tentang" class="btn btn-ghost">Kenali saya</a>
+        </div>
+        <p class="availability"><span></span> Terbuka untuk proyek dan kolaborasi</p>
+      </div>
+
+      <div class="hero-art" aria-label="Kartu portofolio interaktif yang tergantung pada lanyard">
+        <div class="lanyard-frame" aria-hidden="true">
+          <span class="frame-label"><i></i> PORTOFOLIO / IDENTITAS</span>
+          <span class="frame-index">AR—01</span>
+          <span class="frame-caption">TARIK UNTUK MENGAYUN</span>
+        </div>
+        <IDCardLanyard name={site.name} role={site.role} />
+      </div>
+    </div>
+
+    <div class="wrap relative pb-16 md:pb-24">
+      <div class="timeline-heading">
+        <div>
+          <p class="eyebrow">Cara saya berkarya</p>
+          <h2 class="text-2xl font-extrabold md:text-3xl">Setiap detail punya ritmenya.</h2>
+        </div>
+        <span class="timeline-index">01 — 04</span>
+      </div>
+      <Timeline />
+    </div>
+  </section>
+
+  <section class="wrap border-t border-line py-14 md:py-20">
+    <h2 class="text-3xl font-extrabold md:text-4xl">Yang saya kerjakan</h2>
+    <ul class="mt-10 grid gap-5 md:grid-cols-2">
+      {
+        categories.map((c) => (
+          <li>
+            <a
+              href={`/portofolio#${c.id}`}
+              class="bidang group flex items-center gap-5 rounded-xl border border-line p-4 no-underline transition-colors hover:bg-surface"
+              style={`--c: var(--${c.color})`}
+            >
+              <span class="glyph-tile">
+                <Glyph kind={c.id} class="h-10 w-10" />
+              </span>
+              <span>
+                <span class="block font-display text-xl font-extrabold">{c.label}</span>
+                <span class="mt-1 block max-w-[40ch] text-muted">{c.summary}</span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="wrap pb-16 md:pb-24">
+    <div
+      class="flex flex-wrap items-center justify-between gap-6 rounded-2xl border border-line bg-surface p-8 md:p-12"
+    >
+      <div>
+        <h2 class="max-w-[24ch] text-3xl font-extrabold md:text-4xl">
+          Punya proyek atau ajakan kolaborasi?
+        </h2>
+        <p class="mt-3 max-w-[48ch] text-muted">
+          Ceritakan kebutuhanmu lewat halaman kontak. Saya balas secepatnya.
+        </p>
+      </div>
+      <a href="/kontak" class="btn btn-primary">Hubungi saya</a>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  /* garis ruler samar di belakang hero, seperti latar timeline */
+  .hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: linear-gradient(to right, var(--line) 1px, transparent 1px);
+    background-size: 4.25rem 100%;
+    opacity: 0.2;
+    -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 70%);
+  }
+
+  .hero-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(19rem, 0.95fr);
+    align-items: center;
+    gap: clamp(2.5rem, 7vw, 6rem);
+  }
+
+  .hero-copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.2rem;
+    color: var(--fg);
+    font-size: 0.76rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow span,
+  .availability span {
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    background: var(--violet);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--violet) 18%, transparent);
+  }
+
+  .name {
+    font-size: clamp(3rem, 7.5vw, 6.25rem);
+    font-weight: 800;
+    letter-spacing: -0.065em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+
+  .name-period {
+    color: var(--violet);
+  }
+
+  .hero-description {
+    color: var(--muted);
+    line-height: 1.75;
+  }
+
+  .availability {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-top: 1.7rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .availability span {
+    width: 0.45rem;
+    height: 0.45rem;
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 15%, transparent);
+  }
+
+  .hero-art {
+    position: relative;
+    display: grid;
+    min-height: 34rem;
+    place-items: center;
+    isolation: isolate;
+  }
+
+  .lanyard-frame {
+    position: absolute;
+    z-index: 0;
+    inset: 0.5rem 0.25rem;
+    border: 1px solid color-mix(in srgb, var(--fg) 55%, var(--line));
+    background:
+      linear-gradient(color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+      linear-gradient(90deg, color-mix(in srgb, var(--line) 38%, transparent) 1px, transparent 1px),
+      color-mix(in srgb, var(--surface) 60%, transparent);
+    background-size: 2.25rem 2.25rem;
+    box-shadow: 6px 6px 0 color-mix(in srgb, var(--fg) 82%, transparent);
+    pointer-events: none;
+  }
+
+  .frame-label,
+  .frame-index,
+  .frame-caption {
+    position: absolute;
+    z-index: 1;
+    padding: 0.35rem 0.5rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-size: 0.58rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+  }
+
+  .frame-label {
+    top: 0.75rem;
+    left: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .frame-label i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--violet);
+  }
+
+  .frame-index {
+    top: 0.75rem;
+    right: 0.75rem;
+    color: var(--violet);
+  }
+
+  .frame-caption {
+    right: 0.75rem;
+    bottom: 0.75rem;
+    color: var(--muted);
+  }
+
+  .timeline-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .timeline-heading .eyebrow {
+    margin-bottom: 0.65rem;
+  }
+
+  .timeline-index {
+    padding-bottom: 0.3rem;
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+
+  .glyph-tile {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 4.5rem;
+    height: 4.5rem;
+    border-radius: 0.3rem;
+    color: var(--c);
+    background: color-mix(in srgb, var(--c) 14%, var(--bg));
+    border: 1px solid color-mix(in srgb, var(--c) 35%, transparent);
+  }
+
+  .bidang:hover .glyph-tile {
+    background: color-mix(in srgb, var(--c) 24%, var(--bg));
+  }
+
+  .bidang {
+    border-radius: 0;
+    background: var(--surface);
+    box-shadow: 4px 4px 0 var(--fg);
+  }
+
+  .bidang:hover {
+    border-color: var(--fg);
+    background: color-mix(in srgb, var(--c) 8%, var(--surface));
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--c);
+  }
+
+  .hero + section {
+    position: relative;
+  }
+
+  .hero + section::before {
+    content: 'AREAS OF PLAY';
+    display: block;
+    width: min(100% - 2.5rem, 72rem);
+    margin: 0 auto 1rem;
+    color: var(--violet);
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.17em;
+  }
+
+  @media (max-width: 50rem) {
+    .hero-layout {
+      grid-template-columns: 1fr;
+      gap: 0.5rem;
+    }
+    .hero-art {
+      min-height: 31rem;
+      margin-top: 0.5rem;
+    }
+    .name {
+      font-size: clamp(3.2rem, 12vw, 5.5rem);
+    }
+  }
+
+  @media (max-width: 34rem) {
+    .hero-art {
+      min-height: 29rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bidang {
+      transition: none;
+    }
+  }
+</style>

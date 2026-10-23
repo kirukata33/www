@@ -1,0 +1,807 @@
+---
+interface Props {
+  name: string;
+  role: string;
+}
+
+const { name, role } = Astro.props;
+---
+
+<section class="badge-scene" data-badge-scene data-name={name}>
+  <canvas class="badge-canvas" aria-hidden="true"></canvas>
+
+  <button
+    class="badge"
+    type="button"
+    aria-label={`Kartu portofolio ${name}. Seret untuk mengayun atau tekan Enter untuk membalik.`}
+    aria-pressed="false"
+  >
+    <span class="badge-faces">
+      <span class="badge-face badge-front">
+        <svg class="ornament ornament-large" viewBox="-100 -100 200 200" aria-hidden="true">
+          <circle r="96"></circle><circle r="86"></circle><circle r="60"></circle><circle r="25"></circle>
+          {Array.from({ length: 16 }, (_, i) => (
+            <g transform={`rotate(${i * 22.5})`}>
+              <ellipse cy="-73" rx="6.5" ry="12"></ellipse>
+              <circle cy="-91" r="1.8" class="ornament-dot"></circle>
+            </g>
+          ))}
+          {Array.from({ length: 8 }, (_, i) => (
+            <path transform={`rotate(${i * 45})`} d="M0 -25 C 12 -38 10 -50 0 -58 C -10 -50 -12 -38 0 -25"></path>
+          ))}
+          <circle r="6" class="ornament-dot"></circle>
+        </svg>
+        <svg class="ornament ornament-lower" viewBox="-100 -100 200 200" aria-hidden="true">
+          <circle r="96"></circle><circle r="86"></circle><circle r="60"></circle><circle r="25"></circle>
+          {Array.from({ length: 16 }, (_, i) => (
+            <g transform={`rotate(${i * 22.5})`}>
+              <ellipse cy="-73" rx="6.5" ry="12"></ellipse>
+              <circle cy="-91" r="1.8" class="ornament-dot"></circle>
+            </g>
+          ))}
+          {Array.from({ length: 8 }, (_, i) => (
+            <path transform={`rotate(${i * 45})`} d="M0 -25 C 12 -38 10 -50 0 -58 C -10 -50 -12 -38 0 -25"></path>
+          ))}
+          <circle r="6" class="ornament-dot"></circle>
+        </svg>
+        <svg class="badge-arrow" viewBox="0 0 20 200" aria-hidden="true">
+          <path d="M10 4 L10 196 M3 18 L10 4 L17 18 M4 182 L10 170 L16 182 M4 194 L10 182 L16 194"></path>
+        </svg>
+        <span class="badge-slot" aria-hidden="true"></span>
+        <span class="badge-edition">PORTFOLIO<br />EDITION 2026</span>
+        <span class="badge-title">IDEAS<br />MADE<br /><em>REAL.</em></span>
+        <span class="badge-subtitle">WEB · VIDEO · INTERACTIVE WORLDS</span>
+        <span class="badge-front-mark">AR <i>✳</i> 01—04</span>
+      </span>
+
+      <span class="badge-face badge-back">
+        <span class="badge-back-top">
+          <span class="back-mandala" aria-hidden="true">✳</span>
+          <span class="back-rule"></span>
+          <strong>{name}</strong>
+          <small>{role}</small>
+        </span>
+        <span class="badge-back-art" aria-hidden="true">
+          <svg class="back-ornament" viewBox="-100 -100 200 200">
+            <circle r="96"></circle><circle r="80"></circle><circle r="54"></circle><circle r="22"></circle>
+            {Array.from({ length: 16 }, (_, i) => (
+              <g transform={`rotate(${i * 22.5})`}>
+                <ellipse cy="-68" rx="7" ry="15"></ellipse>
+                <circle cy="-91" r="2"></circle>
+              </g>
+            ))}
+            {Array.from({ length: 8 }, (_, i) => (
+              <path transform={`rotate(${i * 45})`} d="M0 -22 C 15 -36 10 -50 0 -58 C -10 -50 -15 -36 0 -22"></path>
+            ))}
+          </svg>
+          <svg class="badge-back-arrow" viewBox="0 0 20 200">
+            <path d="M10 4 L10 196 M3 18 L10 4 L17 18 M4 182 L10 170 L16 182"></path>
+          </svg>
+          <span>MADE WITH<br />CURIOSITY</span>
+        </span>
+        <span class="badge-back-footer">BUILD <i>·</i> CREATE <i>·</i> PLAY</span>
+      </span>
+    </span>
+  </button>
+
+  <span class="badge-hint" data-badge-hint>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <path d="M12 3v18M7 8l-4 4 4 4M17 8l4 4-4 4"></path>
+    </svg>
+    Seret untuk mengayun · Enter untuk membalik
+  </span>
+</section>
+
+<style>
+  .badge-scene {
+    --badge-width: clamp(158px, 40%, 190px);
+    position: absolute;
+    z-index: 5;
+    inset: 0;
+    overflow: visible;
+    pointer-events: none;
+  }
+
+  .badge-canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
+  .badge {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: var(--badge-width);
+    aspect-ratio: 2 / 3;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #201923;
+    cursor: grab;
+    pointer-events: auto;
+    touch-action: none;
+    transform-origin: 50% 0;
+    user-select: none;
+    will-change: transform;
+  }
+
+  .badge:active { cursor: grabbing; }
+  .badge:focus-visible { outline: 3px solid var(--violet); outline-offset: 5px; }
+
+  .badge-faces {
+    position: absolute;
+    inset: 0;
+    display: block;
+    transform-style: preserve-3d;
+    will-change: transform;
+  }
+
+  .badge-face {
+    position: absolute;
+    inset: 0;
+    display: block;
+    overflow: hidden;
+    border-radius: 4px;
+    background: #e8dfcc;
+    box-shadow: 0 18px 40px -12px rgb(0 0 0 / 45%), 0 2px 6px rgb(0 0 0 / 20%);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+
+  .badge-front {
+    background: #e8dfcc;
+    color: #201923;
+  }
+
+  .badge-front::before,
+  .badge-back::before {
+    position: absolute;
+    z-index: 5;
+    top: 4.5%;
+    left: 50%;
+    width: 20%;
+    height: 2.3%;
+    border-radius: 999px;
+    background: rgb(0 0 0 / 28%);
+    box-shadow: inset 0 1px 2px rgb(0 0 0 / 50%);
+    content: '';
+    transform: translateX(-50%);
+  }
+
+  .ornament {
+    position: absolute;
+    overflow: visible;
+    fill: none;
+    stroke: #201923;
+    stroke-width: 1.25;
+    pointer-events: none;
+  }
+
+  .ornament-large {
+    top: 18%;
+    right: -46%;
+    width: 126%;
+    opacity: 0.62;
+  }
+
+  .ornament-lower {
+    bottom: -29%;
+    left: -26%;
+    width: 92%;
+    color: #201923;
+    opacity: 0.46;
+  }
+
+  .ornament-dot {
+    fill: currentColor;
+    stroke: none;
+  }
+
+  .badge-arrow,
+  .badge-back-arrow {
+    position: absolute;
+    top: 32%;
+    left: 9%;
+    width: 8%;
+    height: 65%;
+    overflow: visible;
+    fill: none;
+    stroke: #201923;
+    stroke-width: 1.5;
+    transform: rotate(-14deg);
+  }
+
+  .badge-slot {
+    position: absolute;
+    top: -2%;
+    left: 50%;
+    width: 18%;
+    height: 4%;
+    border-radius: 0 0 6px 6px;
+    background: #201923;
+    transform: translateX(-50%);
+  }
+
+  .badge-edition {
+    position: absolute;
+    top: 11%;
+    left: 9%;
+    color: #201923;
+    font-size: 0.46rem;
+    font-weight: 800;
+    letter-spacing: 0.15em;
+    line-height: 1.55;
+  }
+
+  .badge-title {
+    position: absolute;
+    z-index: 2;
+    top: 23%;
+    left: 12%;
+    font-family: Impact, 'Arial Narrow', var(--font-display), sans-serif;
+    font-size: clamp(2.1rem, 7.2vw, 3.5rem);
+    font-stretch: condensed;
+    font-weight: 900;
+    letter-spacing: -0.045em;
+    line-height: 0.86;
+    text-align: left;
+  }
+
+  .badge-title em {
+    color: #b85820;
+    font-style: normal;
+  }
+
+  .badge-subtitle {
+    position: absolute;
+    z-index: 2;
+    top: 58%;
+    left: 12%;
+    max-width: 70%;
+    font-size: 0.43rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+    line-height: 1.6;
+  }
+
+  .badge-front-mark {
+    position: absolute;
+    z-index: 2;
+    right: 9%;
+    bottom: 6%;
+    font-family: var(--font-display);
+    font-size: 0.5rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+  }
+
+  .badge-front-mark i {
+    margin-inline: 3px;
+    color: #b85820;
+    font-size: 0.75rem;
+    font-style: normal;
+  }
+
+  .badge-back {
+    background: #e8dfcc;
+    transform: rotateY(180deg);
+  }
+
+  .badge-back-top {
+    position: absolute;
+    z-index: 2;
+    top: 17%;
+    right: 9%;
+    left: 11%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .back-mandala {
+    color: #b85820;
+    font-size: 1.7rem;
+    line-height: 1;
+  }
+
+  .back-rule {
+    width: 14%;
+    height: 3px;
+    margin: 8% 0 5%;
+    background: #b85820;
+  }
+
+  .badge-back-top strong {
+    max-width: 100%;
+    overflow: hidden;
+    font-family: Impact, 'Arial Narrow', var(--font-display), sans-serif;
+    font-size: clamp(1.05rem, 4vw, 1.65rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+  }
+
+  .badge-back-top small {
+    max-width: 100%;
+    margin-top: 0.45rem;
+    color: #716776;
+    font-size: 0.42rem;
+    font-weight: 800;
+    letter-spacing: 0.11em;
+    line-height: 1.45;
+    text-transform: uppercase;
+  }
+
+  .badge-back-art {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 44%;
+    overflow: hidden;
+    border-top-left-radius: 18%;
+    background: #141312;
+    color: #b59a6c;
+  }
+
+  .back-ornament {
+    position: absolute;
+    top: -18%;
+    left: -12%;
+    width: 94%;
+    overflow: visible;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.2;
+    opacity: 0.76;
+  }
+
+  .back-ornament circle:nth-child(1),
+  .back-ornament circle:nth-child(3) {
+    stroke: #e8dfcc;
+    opacity: 0.55;
+  }
+
+  .badge-back-arrow {
+    top: -28%;
+    right: 16%;
+    left: auto;
+    width: 7%;
+    height: 122%;
+    stroke: #e8dfcc;
+    transform: rotate(62deg);
+  }
+
+  .badge-back-art > span {
+    position: absolute;
+    right: 9%;
+    bottom: 9%;
+    color: #e8dfcc;
+    font-family: var(--font-display);
+    font-size: 0.54rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    line-height: 1.5;
+    text-align: right;
+  }
+
+  .badge-back-footer {
+    position: absolute;
+    z-index: 2;
+    right: 9%;
+    bottom: 6%;
+    color: #716776;
+    font-size: 0.42rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+  }
+
+  .badge-back-footer i {
+    margin-inline: 3px;
+    color: #b85820;
+    font-style: normal;
+  }
+
+  .badge-hint {
+    position: absolute;
+    right: 0;
+    bottom: 0.6rem;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 700;
+    opacity: 1;
+    transition: opacity 0.25s ease;
+  }
+
+  .badge-hint svg { width: 13px; height: 13px; }
+  .badge-hint.is-hidden { opacity: 0; }
+
+  @media (max-width: 50rem) {
+    .badge-scene { --badge-width: clamp(150px, 42%, 180px); }
+    .badge-edition { font-size: 0.43rem; }
+    .badge-subtitle { font-size: 0.4rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .badge-hint { transition: none; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-badge-scene]').forEach((root) => {
+    const name = root.dataset.name ?? 'Portfolio';
+    const canvas = root.querySelector('canvas');
+    const card = root.querySelector<HTMLButtonElement>('.badge');
+    const inner = root.querySelector<HTMLElement>('.badge-faces');
+    const hint = root.querySelector<HTMLElement>('[data-badge-hint]');
+    const ctx = canvas?.getContext('2d');
+    if (!canvas || !card || !inner || !ctx) return;
+
+    type Point = { x: number; y: number; oldX: number; oldY: number; pinned: boolean };
+    type Link = { a: number; b: number; rest: number };
+
+    const cardWidth = () => card!.offsetWidth;
+    const strapWidth = () => Math.max(13, cardWidth() * 0.1);
+    const points: Point[] = [];
+    const links: Link[] = [];
+    const leftStrand: number[] = [];
+    const rightStrand: number[] = [];
+    const lowerStrand: number[] = [];
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+    let buckleIndex = 0;
+    let ringIndex = 0;
+    let cardIndex = 0;
+    let dragging = false;
+    let flipped = false;
+    let interacted = false;
+    let pointer = { x: 0, y: 0 };
+    let dragOffset = { x: 0, y: 0 };
+    let downPosition = { x: 0, y: 0 };
+    let velocity = { x: 0, y: 0 };
+    let flipAngle = 0;
+    let frame = 0;
+    let observer: ResizeObserver | undefined;
+
+    const clamp = (value: number, min: number, max: number) =>
+      Math.max(min, Math.min(max, value));
+
+    function addPoint(x: number, y: number, pinned = false) {
+      points.push({ x, y, oldX: x, oldY: y, pinned });
+      return points.length - 1;
+    }
+
+    function addStrand(start: number, end: number, segments: number, restScale = 1) {
+      const from = points[start];
+      const to = points[end];
+      const rest = (Math.hypot(to.x - from.x, to.y - from.y) * restScale) / segments;
+      const ids = [start];
+      for (let index = 1; index < segments; index++) {
+        ids.push(addPoint(
+          from.x + ((to.x - from.x) * index) / segments,
+          from.y + ((to.y - from.y) * index) / segments,
+        ));
+      }
+      ids.push(end);
+      for (let index = 0; index < segments; index++) {
+        links.push({ a: ids[index], b: ids[index + 1], rest });
+      }
+      return { ids, rest };
+    }
+
+    function build() {
+      const bounds = root!.getBoundingClientRect();
+      width = Math.max(1, bounds.width);
+      height = Math.max(1, bounds.height);
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas!.width = Math.round(width * dpr);
+      canvas!.height = Math.round(height * dpr);
+      points.length = 0;
+      links.length = 0;
+      leftStrand.length = 0;
+      rightStrand.length = 0;
+      lowerStrand.length = 0;
+
+      const centerX = width / 2;
+      const sw = strapWidth();
+      const cardW = cardWidth();
+      const cardH = card!.offsetHeight;
+      const buckleY = Math.max(46, Math.min(height * 0.23, height - cardH - sw * 2.2 - 46));
+      const spread = Math.min(width * 0.14, cardW * 0.55);
+      const topY = -sw * 1.5;
+      const leftAnchor = addPoint(centerX - spread, topY, true);
+      buckleIndex = addPoint(centerX, buckleY);
+      const left = addStrand(leftAnchor, buckleIndex, 16, 1.035);
+      const rightAnchor = addPoint(centerX + spread, topY, true);
+      const right = addStrand(rightAnchor, buckleIndex, 16, 1.035);
+      ringIndex = addPoint(centerX, buckleY + sw * 1.9);
+      const lower = addStrand(buckleIndex, ringIndex, 4, 1);
+      cardIndex = addPoint(centerX, buckleY + sw * 1.9 + cardH * 0.55);
+      links.push({ a: ringIndex, b: cardIndex, rest: cardH * 0.55 });
+      leftStrand.push(...left.ids);
+      rightStrand.push(...right.ids);
+      lowerStrand.push(...lower.ids);
+    }
+
+    function trace(ids: number[]) {
+      ctx!.beginPath();
+      const first = points[ids[0]];
+      ctx!.moveTo(first.x, first.y);
+      for (let index = 1; index < ids.length - 1; index++) {
+        const p = points[ids[index]];
+        const next = points[ids[index + 1]];
+        ctx!.quadraticCurveTo(p.x, p.y, (p.x + next.x) / 2, (p.y + next.y) / 2);
+      }
+      const last = points[ids[ids.length - 1]];
+      ctx!.lineTo(last.x, last.y);
+    }
+
+    function drawStrand(ids: number[], print = true) {
+      const sw = strapWidth();
+      trace(ids);
+      ctx!.strokeStyle = 'rgba(0,0,0,.2)';
+      ctx!.lineWidth = sw + 3;
+      ctx!.lineCap = 'butt';
+      ctx!.stroke();
+      trace(ids);
+      ctx!.strokeStyle = '#171513';
+      ctx!.lineWidth = sw;
+      ctx!.stroke();
+
+      for (const side of [-1, 1]) {
+        ctx!.beginPath();
+        ids.forEach((id, index) => {
+          const p = points[id];
+          const next = points[ids[Math.min(index + 1, ids.length - 1)]];
+          const prev = points[ids[Math.max(index - 1, 0)]];
+          const dx = next.x - prev.x;
+          const dy = next.y - prev.y;
+          const length = Math.hypot(dx, dy) || 1;
+          const x = p.x + (dy / length) * sw * 0.42 * side;
+          const y = p.y - (dx / length) * sw * 0.42 * side;
+          if (index === 0) ctx!.moveTo(x, y);
+          else ctx!.lineTo(x, y);
+        });
+        ctx!.strokeStyle = 'rgba(232,223,204,.42)';
+        ctx!.lineWidth = 0.8;
+        ctx!.stroke();
+      }
+
+      if (!print) return;
+      for (let index = 1; index < ids.length - 1; index += 3) {
+        const p = points[ids[index]];
+        const next = points[ids[index + 1]];
+        const angle = Math.atan2(next.y - p.y, next.x - p.x) + Math.PI / 2;
+        ctx!.save();
+        ctx!.translate(p.x, p.y);
+        ctx!.rotate(angle);
+        ctx!.fillStyle = '#b59a6c';
+        ctx!.font = `700 ${Math.max(5, sw * 0.24)}px Georgia, serif`;
+        ctx!.textAlign = 'center';
+        ctx!.textBaseline = 'middle';
+        ctx!.fillText(index % 2 ? 'A  ·  CREATE' : '✳  PORTFOLIO', 0, 0, sw * 0.9);
+        ctx!.restore();
+      }
+    }
+
+    function drawHardware() {
+      const buckle = points[buckleIndex];
+      const ring = points[ringIndex];
+      const lower = points[lowerStrand[1]];
+      const angle = Math.atan2(lower.x - buckle.x, lower.y - buckle.y);
+      const scale = strapWidth() / 20;
+      const metal = ctx!.createLinearGradient(buckle.x - 14, buckle.y, buckle.x + 14, buckle.y);
+      metal.addColorStop(0, '#f4efe4');
+      metal.addColorStop(0.45, '#b9b0a0');
+      metal.addColorStop(0.55, '#8f8778');
+      metal.addColorStop(1, '#ece6da');
+
+      ctx!.save();
+      ctx!.translate(buckle.x, buckle.y);
+      ctx!.rotate(-angle);
+      ctx!.shadowColor = 'rgba(0,0,0,.3)';
+      ctx!.shadowBlur = 6;
+      ctx!.shadowOffsetY = 2;
+      ctx!.fillStyle = metal;
+      ctx!.beginPath();
+      ctx!.roundRect(-15 * scale, -14 * scale, 30 * scale, 17 * scale, 3 * scale);
+      ctx!.roundRect(-11 * scale, 1 * scale, 22 * scale, 15 * scale, [2 * scale, 2 * scale, 6 * scale, 6 * scale]);
+      ctx!.fill();
+      ctx!.shadowColor = 'transparent';
+      ctx!.fillStyle = 'rgba(40,36,30,.55)';
+      ctx!.fillRect(-10 * scale, -9 * scale, 20 * scale, 2.2 * scale);
+      ctx!.fillRect(-5 * scale, 6 * scale, 10 * scale, 3 * scale);
+      ctx!.restore();
+
+      const ringGradient = ctx!.createLinearGradient(ring.x - 9, ring.y - 8, ring.x + 9, ring.y + 8);
+      ringGradient.addColorStop(0, '#f4efe4');
+      ringGradient.addColorStop(0.5, '#8f8778');
+      ringGradient.addColorStop(1, '#ece6da');
+      ctx!.beginPath();
+      ctx!.arc(ring.x, ring.y + strapWidth() * 0.4, strapWidth() * 0.42, 0, Math.PI * 2);
+      ctx!.strokeStyle = ringGradient;
+      ctx!.lineWidth = Math.max(2.5, strapWidth() * 0.16);
+      ctx!.stroke();
+    }
+
+    function draw() {
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx!.clearRect(0, 0, width, height);
+      drawStrand(leftStrand);
+      drawStrand(rightStrand);
+      drawStrand(lowerStrand, false);
+      drawHardware();
+    }
+
+    function placeCard() {
+      const ring = points[ringIndex];
+      const center = points[cardIndex];
+      const swing = Math.atan2(center.x - ring.x, center.y - ring.y);
+      const left = ring.x - cardWidth() / 2;
+      const top = ring.y + strapWidth() * 0.8;
+      card!.style.transform = `translate3d(${left}px, ${top}px, 0) rotate(${-swing}rad)`;
+    }
+
+    function revealHint() {
+      if (interacted) return;
+      interacted = true;
+      hint?.classList.add('is-hidden');
+    }
+
+    function localPosition(event: PointerEvent) {
+      const bounds = root!.getBoundingClientRect();
+      return { x: event.clientX - bounds.left, y: event.clientY - bounds.top };
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      if (event.button > 0) return;
+      event.preventDefault();
+      const position = localPosition(event);
+      const ring = points[ringIndex];
+      dragging = true;
+      revealHint();
+      dragOffset = { x: ring.x - position.x, y: ring.y - position.y };
+      pointer = { ...ring };
+      downPosition = position;
+      card!.setPointerCapture(event.pointerId);
+    }
+
+    function onPointerMove(event: PointerEvent) {
+      if (!dragging) return;
+      const position = localPosition(event);
+      const cardH = card!.offsetHeight;
+      const previous = pointer;
+      pointer = {
+        x: clamp(position.x + dragOffset.x, 16, width - 16),
+        y: clamp(position.y + dragOffset.y, 40, height - cardH * 0.48),
+      };
+      velocity = { x: pointer.x - previous.x, y: pointer.y - previous.y };
+    }
+
+    function onPointerUp(event: PointerEvent) {
+      if (!dragging) return;
+      const position = localPosition(event);
+      const moved = Math.hypot(position.x - downPosition.x, position.y - downPosition.y);
+      dragging = false;
+      if (moved < 6) flip();
+      else {
+        const ring = points[ringIndex];
+        ring.oldX = ring.x - velocity.x;
+        ring.oldY = ring.y - velocity.y;
+      }
+    }
+
+    function flip() {
+      flipped = !flipped;
+      card!.setAttribute('aria-pressed', String(flipped));
+      card!.setAttribute(
+        'aria-label',
+        `${name}: ${flipped ? 'sisi belakang' : 'sisi depan'} kartu. Tekan Enter atau klik untuk membalik.`,
+      );
+      revealHint();
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      flip();
+    }
+
+    function tick() {
+      const dtGravity = 0.3;
+      for (let index = 0; index < points.length; index++) {
+        const point = points[index];
+        if (point.pinned || (dragging && index === ringIndex)) continue;
+        const vx = (point.x - point.oldX) * 0.992;
+        const vy = (point.y - point.oldY) * 0.992;
+        point.oldX = point.x;
+        point.oldY = point.y;
+        point.x += vx;
+        point.y += vy + dtGravity;
+      }
+
+      if (dragging) {
+        const ring = points[ringIndex];
+        ring.x += (pointer.x - ring.x) * 0.35;
+        ring.y += (pointer.y - ring.y) * 0.35;
+      }
+
+      for (let iteration = 0; iteration < 12; iteration++) {
+        for (const link of links) {
+          const a = points[link.a];
+          const b = points[link.b];
+          const dx = b.x - a.x;
+          const dy = b.y - a.y;
+          const distance = Math.hypot(dx, dy) || 0.0001;
+          const correction = (distance - link.rest) / distance;
+          const aWeight = a.pinned ? 0 : dragging && link.b === ringIndex ? 0.25 : 0.5;
+          const bWeight = b.pinned ? 0 : dragging && link.b === ringIndex ? 0.75 : 0.5;
+          const total = aWeight + bWeight || 1;
+          a.x += dx * correction * (aWeight / total);
+          a.y += dy * correction * (aWeight / total);
+          b.x -= dx * correction * (bWeight / total);
+          b.y -= dy * correction * (bWeight / total);
+        }
+        if (dragging) {
+          const ring = points[ringIndex];
+          ring.x += (pointer.x - ring.x) * 0.48;
+          ring.y += (pointer.y - ring.y) * 0.48;
+        }
+      }
+
+      for (const point of points) {
+        if (point.pinned) continue;
+        const horizontalMargin =
+          point === points[ringIndex] || point === points[cardIndex]
+            ? cardWidth() / 2 + 8
+            : 10;
+        point.x = clamp(point.x, horizontalMargin, width - horizontalMargin);
+        point.y = clamp(point.y, -strapWidth(), height - 10);
+      }
+
+      flipAngle += ((flipped ? Math.PI : 0) - flipAngle) * 0.16;
+      inner!.style.transform = `perspective(1100px) rotateY(${flipAngle}rad)`;
+      draw();
+      placeCard();
+      frame = requestAnimationFrame(tick);
+    }
+
+    build();
+    draw();
+    placeCard();
+    frame = requestAnimationFrame(tick);
+    observer = new ResizeObserver(() => {
+      const bounds = root!.getBoundingClientRect();
+      if (Math.abs(bounds.width - width) < 1 && Math.abs(bounds.height - height) < 1) return;
+      build();
+    });
+    observer.observe(root);
+    card.addEventListener('pointerdown', onPointerDown);
+    card.addEventListener('pointermove', onPointerMove);
+    card.addEventListener('pointerup', onPointerUp);
+    card.addEventListener('pointercancel', onPointerUp);
+    card.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      cancelAnimationFrame(frame);
+      observer?.disconnect();
+      card.removeEventListener('pointerdown', onPointerDown);
+      card.removeEventListener('pointermove', onPointerMove);
+      card.removeEventListener('pointerup', onPointerUp);
+      card.removeEventListener('pointercancel', onPointerUp);
+      card.removeEventListener('keydown', onKeyDown);
+    };
+  });
+</script>

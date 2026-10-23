@@ -1,0 +1,243 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Glyph from '../components/Glyph.astro';
+import { categories, projects } from '../data/site';
+
+const catOf = (id: string) => categories.find((c) => c.id === id)!;
+---
+
+<Layout
+  title="Portofolio"
+  description="Proyek Laravel, klip video, game 2D, dan game 3D karya Ahmad Revalvala."
+>
+  <section class="portfolio-intro wrap pt-14 pb-8 md:pt-20">
+    <p class="section-kicker">Proyek pilihan / 2024—26</p>
+    <h1 class="portfolio-title font-extrabold">Karya yang<br /><span>punya cerita.</span></h1>
+    <p class="mt-5 max-w-[56ch] text-lg text-muted">Eksplorasi kecil dan besar di persimpangan teknologi, visual, dan permainan.</p>
+
+    <div class="mt-8 flex flex-wrap gap-2" role="group" aria-label="Saring proyek">
+      <button type="button" class="filter" data-filter="semua" aria-pressed="true">Semua</button>
+      {
+        categories.map((c) => (
+          <button type="button" class="filter" data-filter={c.id} aria-pressed="false">
+            {c.label}
+          </button>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="wrap pb-16 md:pb-24">
+    <ul class="project-grid" id="daftar-proyek">
+      {
+        projects.map((p, index) => {
+          const cat = catOf(p.category);
+          return (
+            <li
+              class="proyek project-card"
+              data-cat={p.category}
+              style={`--c: var(--${cat.color})`}
+            >
+              <div class="thumb" aria-hidden="true">
+                <span class="thumb-index">PROJECT / 0{index + 1}</span>
+                <Glyph kind={cat.id} class="h-24 w-24" />
+                <span class="thumb-label">{cat.label}</span>
+              </div>
+              <div class="project-copy">
+                <p class="project-category">
+                  <span class="h-2.5 w-2.5 rounded-full" style="background: var(--c)" aria-hidden="true" />
+                  {cat.label}
+                </p>
+                <h2 class="mt-2 font-extrabold">{p.title}</h2>
+                <p class="mt-3 text-muted">{p.description}</p>
+                <ul class="mt-5 flex flex-wrap gap-2" aria-label="Teknologi">
+                  {p.tags.map((t) => (
+                    <li class="tag">{t}</li>
+                  ))}
+                </ul>
+                {p.href && (
+                  <a href={p.href} rel="noopener" class="project-link mt-5 inline-flex items-center gap-2 font-semibold text-violet">
+                    Buka proyek <span aria-hidden="true">↗</span>
+                  </a>
+                )}
+              </div>
+            </li>
+          );
+        })
+      }
+    </ul>
+    <p id="kosong" class="mt-8 text-muted" hidden>
+      Belum ada proyek di bidang ini. Coba pilih bidang lain.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .portfolio-title {
+    font-size: clamp(3.5rem, 9vw, 7rem);
+    letter-spacing: -0.08em;
+    line-height: 0.9;
+  }
+
+  .portfolio-title span {
+    color: var(--violet);
+  }
+
+  .filter {
+    padding: 0.55rem 1rem;
+    border: 1px solid var(--fg);
+    border-radius: 0;
+    font-weight: 700;
+    font-size: 0.82rem;
+    color: var(--muted);
+    transition: background-color 0.15s, color 0.15s, transform 0.15s;
+  }
+  .filter:hover {
+    color: var(--fg);
+    transform: translateY(-2px);
+  }
+  .filter[aria-pressed='true'] {
+    background: var(--violet);
+    border-color: var(--violet);
+    color: white;
+  }
+
+  .project-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2rem 1.5rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project-card {
+    min-width: 0;
+  }
+
+  .thumb {
+    position: relative;
+    display: grid;
+    aspect-ratio: 1.28 / 1;
+    place-items: center;
+    overflow: hidden;
+    color: var(--c);
+    border: 1px solid var(--fg);
+    background-color: color-mix(in srgb, var(--c) 17%, var(--surface));
+    background-image: linear-gradient(135deg, transparent 49.7%, color-mix(in srgb, var(--c) 28%, transparent) 50%, transparent 50.4%), radial-gradient(circle at 75% 22%, color-mix(in srgb, var(--c) 30%, transparent) 0 4rem, transparent 4.1rem);
+    box-shadow: 5px 5px 0 var(--fg);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .project-card:hover .thumb {
+    transform: translate(-2px, -2px) rotate(-0.5deg);
+    box-shadow: 8px 8px 0 var(--fg);
+  }
+
+  .thumb :global(svg) {
+    width: clamp(5rem, 12vw, 8rem);
+    height: auto;
+    filter: drop-shadow(5px 6px 0 color-mix(in srgb, var(--fg) 16%, transparent));
+  }
+
+  .thumb-index,
+  .thumb-label {
+    position: absolute;
+    color: var(--fg);
+    font-size: 0.62rem;
+    font-weight: 800;
+    letter-spacing: 0.13em;
+  }
+
+  .thumb-index {
+    top: 1rem;
+    left: 1rem;
+  }
+
+  .thumb-label {
+    right: 1rem;
+    bottom: 1rem;
+    padding: 0.35rem 0.6rem;
+    background: var(--surface);
+  }
+
+  .project-copy {
+    padding: 1.25rem 0.25rem 0;
+  }
+
+  .project-category {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: var(--muted);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .project-copy h2 {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    letter-spacing: -0.05em;
+  }
+
+  .project-copy > p:not(.project-category) {
+    max-width: 50ch;
+  }
+
+  .project-link {
+    text-decoration: none;
+  }
+
+  .project-link:hover span {
+    transform: translate(2px, -2px);
+  }
+
+  .project-link span {
+    transition: transform 0.15s ease;
+  }
+
+  @media (max-width: 42rem) {
+    .project-grid {
+      grid-template-columns: 1fr;
+      gap: 2.25rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .thumb,
+    .project-link span {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>('.filter');
+  const items = document.querySelectorAll<HTMLElement>('.proyek');
+  const kosong = document.getElementById('kosong');
+
+  function apply(f: string) {
+    let tampil = 0;
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === f)));
+    items.forEach((el) => {
+      const cocok = f === 'semua' || el.dataset.cat === f;
+      el.hidden = !cocok;
+      if (cocok) tampil++;
+    });
+    if (kosong) kosong.hidden = tampil > 0;
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const f = btn.dataset.filter ?? 'semua';
+      apply(f);
+      history.replaceState(null, '', f === 'semua' ? location.pathname : `#${f}`);
+    });
+  });
+
+  // Tautan dari beranda, mis. /portofolio#laravel
+  const awal = location.hash.slice(1);
+  if (awal && [...buttons].some((b) => b.dataset.filter === awal)) apply(awal);
+</script>
